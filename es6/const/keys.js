@@ -5,5 +5,6 @@ export const keys = {
     ArrowRight: 39,
     Space     : 32,
     KeyP      : 80,
-    KeyH      : 72
+    KeyH      : 72,
+    KeyC      : 67
 };

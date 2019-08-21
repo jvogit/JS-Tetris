@@ -1,6 +1,7 @@
 import Playfield from './fields/playfield';
 import Holdfield from './fields/holdfield';
 import Nextfield from './fields/nextfield';
+import Anim from './utils/anim';
 import { keys } from './const/keys';
 
 class Tetris{
@@ -26,8 +27,8 @@ class Tetris{
         this.score     = 0;
         this.loopCount = 0;
         this.pause     = false;
-        this.timeout   = 1000/this.fps;
-
+        this.timeout   = 1000/this.fps; // 20 ms im fuckiong retsraded
+        this.anims = [];
         this.registerListeners();
         this.startGame();
     }
@@ -102,7 +103,9 @@ class Tetris{
      */
     updateScores(e){
         const clearedRows = e.detail.clearedRows;
-
+        if(clearedRows > 0){
+            this.anims.push(new Anim());
+        }
         this.rows  += clearedRows;
         this.score += Math.floor(50 * Math.pow(1.1, clearedRows) * clearedRows);
         this.level  = Math.floor(this.rows / 20) + 1;
@@ -125,7 +128,6 @@ class Tetris{
      */
     update(){
         this.loopCount++;
-
         if((this.loopCount % ((this.fps * 2) - (this.level * 10))) === 0){
             this.playfield.moveCurrentBlockDown();
         }
@@ -147,6 +149,8 @@ class Tetris{
         document.getElementById(this.selectors.rows).innerText  = this.rows;
         document.getElementById(this.selectors.level).innerText = this.level;
         document.getElementById(this.selectors.time).innerText  = this.getTime();
+
+        this.anims = this.anims.filter(anim => anim.tick(this));
     }
 
     /*
@@ -164,6 +168,21 @@ class Tetris{
         ctx.fillStyle = "#666666";
 
         ctx.fillText(text, 150, 250);
+    }
+
+    drawBigVilledo(text){
+        const ctx = this.tetrisCnvs.getContext("2d");
+        const villedo = document.getElementById("bigvilledo");
+        ctx.font      = "30px Arial";
+        ctx.textAlign = "center";
+        ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+
+        ctx.fillRect(0, 0, 300, 600);
+
+        ctx.fillStyle = "#666666";
+
+        ctx.fillText(text, 150, 250);
+        ctx.drawImage(villedo, 125, 300, 50, 50); // y u gotta be so rude
     }
 
     /*
@@ -209,7 +228,7 @@ class Tetris{
                 e.preventDefault();
                 event = new Event('TetrisPause');
                 break;
-            case keys.KeyH:
+            case keys.KeyC:
                 e.preventDefault();
                 event = new Event('TetrisHold');
                 break;
